@@ -5,6 +5,7 @@ This is a simple ATM simulation program written in C++. It allows users to:
 ✅ Withdraw money from savings or current accounts
 ✅ Deposit money into savings or current accounts
 ✅ Check account balances
+................Note:  here the pin of the ATM is 1234...........
 
 The program maintains balances and keeps the user in a looped menu until they choose to exit.
 
