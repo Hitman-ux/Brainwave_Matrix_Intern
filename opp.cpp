@@ -50,7 +50,7 @@ void language() {
     int x;
     cout << "Select your language:\n";
     cout << "1) English\n";
-    cout << "2) Hindi\n";
+    cout << "2) Hindi(not ready yet plz select option 1 only\n";
     cin >> x;
     if (x == 1) {
         display();  // **Fix: Ensures user stays in menu after selecting a language**
