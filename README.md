@@ -11,3 +11,5 @@ The program maintains balances and keeps the user in a looped menu until they ch
 Tech Used: C++
 Features: Console-based UI, error handling, real-time balance updates
 
+improvements needed:
+in the language section option 2 for hindi is still not developed yet as i do not have such proficiency in writing in hindi. But we can easily add the hindi layout in upcomming future if needed. But for now only english version is working.
