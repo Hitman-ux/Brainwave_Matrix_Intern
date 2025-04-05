@@ -1,0 +1,208 @@
+#include <iostream>
+#include <fstream>
+#include <vector>
+#include <sstream>
+#include <string>
+using namespace std;
+
+struct BankAccount {
+    int accountNumber;
+    string accountHolder;
+    double balance;
+
+    string toString() const {
+        return to_string(accountNumber) + "|" + accountHolder + "|" + to_string(balance);
+    }
+
+    static BankAccount fromString(const string& line) {
+        stringstream ss(line);
+        string part;
+        BankAccount acc;
+
+        getline(ss, part, '|');
+        acc.accountNumber = stoi(part);
+        getline(ss, acc.accountHolder, '|');
+        getline(ss, part, '|');
+        acc.balance = stod(part);
+        return acc;
+    }
+};
+
+vector<BankAccount> loadAccounts() {
+    ifstream file("accounts.txt");
+    vector<BankAccount> accounts;
+    string line;
+    while (getline(file, line)) {
+        if (!line.empty()) {
+            accounts.push_back(BankAccount::fromString(line));
+        }
+    }
+    return accounts;
+}
+
+void saveAccounts(const vector<BankAccount>& accounts) {
+    ofstream file("accounts.txt");
+    for (const auto& acc : accounts) {
+        file << acc.toString() << endl;
+    }
+}
+
+int generateAccountNumber(const vector<BankAccount>& accounts) {
+    int maxNum = 1000;
+    for (const auto& acc : accounts) {
+        if (acc.accountNumber > maxNum)
+            maxNum = acc.accountNumber;
+    }
+    return maxNum + 1;
+}
+
+BankAccount* findAccount(vector<BankAccount>& accounts, int accNo) {
+    for (auto& acc : accounts) {
+        if (acc.accountNumber == accNo)
+            return &acc;
+    }
+    return nullptr;
+}
+
+void createAccount() {
+    vector<BankAccount> accounts = loadAccounts();
+
+    string name;
+    double deposit;
+    cout << "Enter account holder name: ";
+    cin.ignore();
+    getline(cin, name);
+    cout << "Enter initial deposit: ₹";
+    cin >> deposit;
+
+    BankAccount newAcc;
+    newAcc.accountNumber = generateAccountNumber(accounts);
+    newAcc.accountHolder = name;
+    newAcc.balance = deposit;
+
+    accounts.push_back(newAcc);
+    saveAccounts(accounts);
+
+    cout << "Account created! Account Number: " << newAcc.accountNumber << "\n";
+}
+
+void depositMoney() {
+    vector<BankAccount> accounts = loadAccounts();
+
+    int accNo;
+    double amount;
+    cout << "Enter account number: ";
+    cin >> accNo;
+    BankAccount* acc = findAccount(accounts, accNo);
+
+    if (acc) {
+        cout << "Enter amount to deposit: ₹";
+        cin >> amount;
+        if (amount > 0) {
+            acc->balance += amount;
+            saveAccounts(accounts);
+            cout << "Deposit successful.\n";
+        } else {
+            cout << "Invalid amount.\n";
+        }
+    } else {
+        cout << "Account not found.\n";
+    }
+}
+
+void withdrawMoney() {
+    vector<BankAccount> accounts = loadAccounts();
+
+    int accNo;
+    double amount;
+    cout << "Enter account number: ";
+    cin >> accNo;
+    BankAccount* acc = findAccount(accounts, accNo);
+
+    if (acc) {
+        cout << "Enter amount to withdraw: ₹";
+        cin >> amount;
+        if (amount > 0 && acc->balance >= amount) {
+            acc->balance -= amount;
+            saveAccounts(accounts);
+            cout << "Withdrawal successful.\n";
+        } else {
+            cout << "Insufficient balance or invalid amount.\n";
+        }
+    } else {
+        cout << "Account not found.\n";
+    }
+}
+
+void transferMoney() {
+    vector<BankAccount> accounts = loadAccounts();
+
+    int fromAcc, toAcc;
+    double amount;
+    cout << "Enter sender account number: ";
+    cin >> fromAcc;
+    BankAccount* sender = findAccount(accounts, fromAcc);
+
+    cout << "Enter receiver account number: ";
+    cin >> toAcc;
+    BankAccount* receiver = findAccount(accounts, toAcc);
+
+    if (sender && receiver) {
+        cout << "Enter amount to transfer: ₹";
+        cin >> amount;
+        if (amount > 0 && sender->balance >= amount) {
+            sender->balance -= amount;
+            receiver->balance += amount;
+            saveAccounts(accounts);
+            cout << "Transfer successful.\n";
+        } else {
+            cout << "Insufficient funds or invalid amount.\n";
+        }
+    } else {
+        cout << "Sender or receiver account not found.\n";
+    }
+}
+
+void showAccount() {
+    vector<BankAccount> accounts = loadAccounts();
+
+    int accNo;
+    cout << "Enter account number: ";
+    cin >> accNo;
+    BankAccount* acc = findAccount(accounts, accNo);
+
+    if (acc) {
+        cout << "\nAccount Number: " << acc->accountNumber << endl;
+        cout << "Account Holder: " << acc->accountHolder << endl;
+        cout << "Balance: ₹" << acc->balance << endl;
+    } else {
+        cout << "Account not found.\n";
+    }
+}
+
+int main() {
+    int choice;
+    do {
+        cout << "\n======= File-Based Online Banking System =======\n";
+        cout << "1. Create Account\n";
+        cout << "2. Deposit Money\n";
+        cout << "3. Withdraw Money\n";
+        cout << "4. Transfer Money\n";
+        cout << "5. Show Account Details\n";
+        cout << "0. Exit\n";
+        cout << "Enter choice: ";
+        cin >> choice;
+
+        switch (choice) {
+            case 1: createAccount(); break;
+            case 2: depositMoney(); break;
+            case 3: withdrawMoney(); break;
+            case 4: transferMoney(); break;
+            case 5: showAccount(); break;
+            case 0: cout << "Goodbye!\n"; break;
+            default: cout << "Invalid choice.\n";
+        }
+    } while (choice != 0);
+
+    return 0;
+}
